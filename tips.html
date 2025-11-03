@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>加油欧</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #f0f0f0;
+            font-family: 'SimSun', '仿宋', serif;
+            height: 100vh;
+            width: 100vw;
+        }
+        
+        .tip-window {
+            position: absolute;
+            width: 270px;
+            height: 75px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            animation: fadeIn 0.5s ease-out;
+            z-index: 1000;
+        }
+        
+        .tip-content {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-out {
+            animation: fadeOut 0.5s ease-in forwards;
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div id="tips-container"></div>
+
+    <script>
+        // 提示语数组
+        const tips = [
+            '好好吃饭', '好好休息', '早点休息', '天天开心',
+            '记得喝水', '按时吃饭', '别熬夜了', '照顾好自己',
+            '注意身体', '记得运动', '放松一下', '保持微笑',
+            '劳逸结合', '别太劳累', '记得午休', '多吃水果',
+            '出去走走', '呼吸新鲜空气', '保持好心情', '别久坐',
+            '要吃早餐', '多喝点水', '注意保暖', '别着凉',
+            '保持健康', '平安喜乐', '开心每一天', '一切顺利',
+            '万事如意', '心想事成', '我爱你', '今天也要加油呀',
+            '你是最棒的', '超级漂亮', '大眼睛', '相信自己',
+            '累了就休息，没关系的', '你笑起来真好看', '星星为你闪耀',
+            '你是独一无二的','今天也辛苦啦','向阳而生'
+        ];
+        
+        // 背景颜色数组
+        const bgColors = [
+            'lightpink', 'skyblue', 'lightgreen', 'lavender', 'lightyellow',
+            'plum', 'coral', 'bisque', 'aquamarine', 'mistyrose', 'honeydew',
+            'peachpuff', 'paleturquoise', 'lavenderblush', 'oldlace', 'lemonchiffon',
+            'lightcyan', 'lightgray', 'lightpink', 'lightsalmon', 'lightseagreen',
+            'lightskyblue', 'lightslategray', 'lightsteelblue', 'lightyellow'
+        ];
+        
+        // 创建提示窗口
+        function createTipWindow() {
+            const container = document.getElementById('tips-container');
+            const tipWindow = document.createElement('div');
+            tipWindow.className = 'tip-window';
+            
+            // 随机位置
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            const windowWidth = 270;
+            const windowHeight = 75;
+            const x = Math.floor(Math.random() * (screenWidth - windowWidth));
+            const y = Math.floor(Math.random() * (screenHeight - windowHeight));
+            
+            tipWindow.style.left = `${x}px`;
+            tipWindow.style.top = `${y}px`;
+            
+            // 随机背景色
+            const randomColor = bgColors[Math.floor(Math.random() * bgColors.length)];
+            tipWindow.style.backgroundColor = randomColor;
+            
+            // 随机提示语
+            const randomTip = tips[Math.floor(Math.random() * tips.length)];
+            const tipContent = document.createElement('div');
+            tipContent.className = 'tip-content';
+            tipContent.textContent = randomTip;
+            
+            tipWindow.appendChild(tipContent);
+            container.appendChild(tipWindow);
+            
+            // 10秒后移除
+            setTimeout(() => {
+                tipWindow.classList.add('fade-out');
+                setTimeout(() => {
+                    container.removeChild(tipWindow);
+                }, 500);
+            }, 10000);
+        }
+        
+        // 创建多个提示窗口
+        function createMultipleTips(count) {
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    createTipWindow();
+                }, i * 20); // 10ms间隔，模拟原代码的快速创建
+            }
+        }
+        
+        // 页面加载完成后开始创建提示窗口
+        window.addEventListener('load', () => {
+            createMultipleTips(200); // 创建100个提示窗口，避免过多影响性能
+        });
+    </script>
+</body>
+</html>
