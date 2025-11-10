@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="/image/favicon.png" />
+    <title>时笺</title>
+    <style>
+      :root {
+        --ink-black: #2e2e2e;
+        --rice-paper: #f5f2ea;
+        --moss-green: #8a9b6e;
+        --shadow-color: rgba(138, 155, 110, 0.15);
+      }
+
+      .dark-mode {
+        --ink-black: #f5f2ea;
+        --rice-paper: #2e2e2e;
+        --moss-green: #c0d0a4;
+        --shadow-color: rgba(192, 208, 164, 0.2);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        background: var(--rice-paper);
+        font-family: "Noto Serif SC", serif;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        transition: background 0.5s ease;
+      }
+
+      .ink-wash {
+        position: fixed;
+        width: 150vmax;
+        height: 150vmax;
+        background: radial-gradient(
+            circle at 30% 40%,
+            rgba(138, 155, 110, 0.1) 0%,
+            transparent 40%
+          ),
+          radial-gradient(
+            circle at 70% 60%,
+            rgba(138, 155, 110, 0.08) 0%,
+            transparent 45%
+          );
+        animation: drift 40s linear infinite;
+        z-index: 0;
+        transition: transform 0.3s ease;
+      }
+
+      .chronogram {
+        position: relative;
+        z-index: 1;
+        padding: 3rem;
+        background: rgba(245, 242, 234, 0.8);
+        border-radius: 2px;
+        box-shadow: 0 4px 20px var(--shadow-color);
+        transition: transform 0.5s ease, box-shadow 0.3s ease;
+      }
+
+      .time-track {
+        display: grid;
+        gap: 1.5rem;
+        padding: 2rem;
+        border-left: 3px solid var(--moss-green);
+      }
+
+      .time-unit {
+        display: flex;
+        align-items: baseline;
+        gap: 0.8rem;
+      }
+
+      .time-value {
+        font-size: 3.2rem;
+        color: var(--ink-black);
+        font-weight: 300;
+        letter-spacing: -0.03em;
+        transition: transform 0.3s ease, color 0.3s ease;
+      }
+
+      .time-label {
+        font-size: 1.1rem;
+        color: var(--moss-green);
+        writing-mode: vertical-lr;
+        margin-left: 0.4rem;
+      }
+
+      .leaf {
+        position: fixed;
+        width: 24px;
+        opacity: 0;
+        animation: fall 8s linear infinite;
+        transition: opacity 0.3s ease;
+      }
+
+      .theme-toggle {
+        position: fixed;
+        top: 2rem;
+        right: 2rem;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--moss-green);
+        cursor: pointer;
+        transition: transform 0.3s ease;
+        z-index: 2;
+        outline: none; /* 移除默认轮廓线 */
+        -webkit-tap-highlight-color: transparent; /* 移除移动端点击高亮 */
+      }
+
+      .theme-toggle:focus-visible {
+        box-shadow: 0 0 0 3px var(--shadow-color);
+      }
+
+      @keyframes drift {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes fall {
+        0% {
+          transform: translateY(-10vh) rotate(0deg);
+          opacity: 0.8;
+        }
+        100% {
+          transform: translateY(110vh) rotate(360deg);
+          opacity: 0;
+        }
+      }
+
+      /* 交互样式 */
+      .theme-toggle:hover {
+        transform: scale(1.1) rotate(180deg);
+      }
+
+      .chronogram:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px var(--shadow-color);
+      }
+
+      .leaf:hover {
+        animation-play-state: paused;
+        opacity: 1 !important;
+      }
+
+      .time-value:hover {
+        transform: translateY(-5px) scale(1.05);
+        color: var(--moss-green);
+      }
+
+      .dark-mode .chronogram {
+        background: rgba(46, 46, 46, 0.9);
+      }
+    </style>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="theme-toggle" id="themeToggle"></div>
+    <div class="ink-wash"></div>
+
+    <div class="chronogram">
+      <div class="time-track" id="time-display">
+        <div class="time-unit">
+          <span class="time-value" id="days">000</span>
+          <span class="time-label">日</span>
+        </div>
+        <div class="time-unit">
+          <span class="time-value" id="hours">00</span>
+          <span class="time-label">时</span>
+        </div>
+        <div class="time-unit">
+          <span class="time-value" id="minutes">00</span>
+          <span class="time-label">分</span>
+        </div>
+        <div class="time-unit">
+          <span class="time-value" id="seconds">00</span>
+          <span class="time-label">秒</span>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // 主题切换
+      const themeToggle = document.getElementById("themeToggle");
+      themeToggle.addEventListener("click", () => {
+        document.body.classList.toggle("dark-mode");
+      });
+
+      // 鼠标互动背景
+      document.body.addEventListener("mousemove", (e) => {
+        const x = e.clientX / window.innerWidth - 0.5;
+        const y = e.clientY / window.innerHeight - 0.5;
+        document.querySelector(".ink-wash").style.transform = `
+          rotate(${x * 10}deg)
+          translate(${x * 30}px, ${y * 30}px)
+        `;
+      });
+
+      // 增强落叶效果
+      function createLeaves() {
+        const container = document.body;
+        for (let i = 0; i < 12; i++) {
+          const leaf = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "svg"
+          );
+          leaf.setAttribute("class", "leaf");
+          leaf.setAttribute("viewBox", "0 0 24 24");
+          leaf.style.transform = `rotate(${Math.random() * 360}deg)`;
+          leaf.style.width = `${20 + Math.random() * 10}px`;
+          leaf.innerHTML = `
+            <path fill="currentColor" 
+                  d="M12,3c0,0-6.186,5.34-9.643,8.232C2.154,11.416,2,11.684,2,12c0,0.553,0.447,1,1,1h2v7h2v-7h12v7h2v-7h2c0.553,0,1-0.447,1-1c0-0.316-0.154-0.584-0.383-0.785C18.074,8.306,12,3,12,3z"/>
+          `;
+          leaf.style.left = Math.random() * 100 + "%";
+          leaf.style.animationDuration = 8 + Math.random() * 4 + "s";
+          leaf.style.animationDelay = Math.random() * 8 + "s";
+          container.appendChild(leaf);
+        }
+      }
+
+      // 时间计算
+      const pastTime = new Date(2024, 3, 27, 23, 54);
+
+      function updateTimer() {
+        const nowTime = new Date();
+        const timeDiff = Math.abs(nowTime - pastTime);
+
+        const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor(
+          (timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+        );
+        const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+        document.getElementById("days").textContent = days
+          .toString()
+          .padStart(3, "0");
+        document.getElementById("hours").textContent = hours
+          .toString()
+          .padStart(2, "0");
+        document.getElementById("minutes").textContent = minutes
+          .toString()
+          .padStart(2, "0");
+        document.getElementById("seconds").textContent = seconds
+          .toString()
+          .padStart(2, "0");
+      }
+
+      // 初始化
+      createLeaves();
+      setInterval(updateTimer, 1000);
+      updateTimer();
+
+      // 为所有时间数字添加悬停效果
+      document.querySelectorAll(".time-value").forEach((element) => {
+        element.addEventListener("mouseover", () => {
+          element.style.transform = "translateY(-5px) scale(1.05)";
+        });
+        element.addEventListener("mouseout", () => {
+          element.style.transform = "none";
+        });
+      });
+    </script>
+  </body>
+</html>
